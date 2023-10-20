@@ -18,6 +18,14 @@ Install dependencies by running the following
 
     pip install -r requirements.txt
 
+### Testing
+
+For testing we need a virtual COM port. For windows we use 
+
+python -m unittest test
+
+python -m unittest discover
+
 ### Hardware Requirements
 You will need an RS 232 to USB converter. There are plenty of brands to choose from however it important to consider the chip that will be doing the conversion. FTDI makes all an all-in-one package and has readily available drivers.
 
@@ -27,10 +35,13 @@ If you have a cable with an FTDI chip you can readily plug the cable in and have
 ### Configuration 
 
 Host communication is established with the controller through the RS-232 port. It is a three-wire asynchronous serial interface with hard wired Clear To Send (CTS) and Data Terminal Ready (DTR). The controller is configured as DCE. Listed below are the communication parameters. 
+
  * Baud Rate 9600 
  * Stop Bits 1 
  * Parity None 
  * Data Bits 8
+
+
 
 ### Details
 Serial Communication relies on PySerial 

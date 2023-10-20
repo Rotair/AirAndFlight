@@ -23,6 +23,10 @@ ser = serial.Serial(
 
 ser.write(b'JOG60\r\n')
 
-while 1:
-  tdata = ser.read(5)           # Wait forever for anything
-  print(tdata)
+response_terminator = bytes('/r/n/>/r/n')
+
+def receive():
+  ser.send
+  response = ser.read_until(expected=response_terminator)
+  print( )
+
