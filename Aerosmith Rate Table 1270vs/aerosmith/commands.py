@@ -11,7 +11,7 @@ import enum
 
 import serial
 
-from aerosmith.commications import Communication
+from aerosmith.communication import Communication
 
 class InvalidArugment(Exception):
     pass
@@ -24,17 +24,23 @@ class Command:
     communication : Communication = None
 
     def validate(self, value):
-        #  No Limits, no need to validate
+
+        # Wrong data type is given
         if self.datatype is not None and not isinstance(value, self.datatype):
             raise InvalidArugment("Invalid data type for command")
         
+        #  No Limits, no need to validate
         if self.upper is None or self.lower is None:
             return True
-        if value < self.upper and value > self.lower:
+        
+        # Check if value is within limits
+        if value <= self.upper and value >= self.lower:
             return True
         
-        raise InvalidArugment("Command not within device limits")
+        return False
+        
 
+        
     
     def __init__(self, id, datatype=None, lower=None, upper=None, units : str = None):
         self.command_id = id
@@ -49,6 +55,9 @@ class Command:
     
     @data.setter
     def data(self, value):
+        if not self.validate(value):
+            raise InvalidArugment("Command not within device limits")
+
         return self.communication.send(self.command_id, value)
     
     def send(self, data):
@@ -77,8 +86,8 @@ commands =  {
     ACLCommands.HOME : Command(ACLCommands.HOME),
     ACLCommands.CALIBRATION : Command(ACLCommands.CALIBRATION),
     ACLCommands.CLUTCH : Command(ACLCommands.CLUTCH, int, 1, 5),
-    # 1-21600 Deg/Min, bi-directional 360 degrees per second
-    ACLCommands.JOG : Command(ACLCommands.JOG, int, 0, 360),
+    # 1-21600 Deg/Min, bi-directional 360 degrees per second Negative units represent Counter Clockwise
+    ACLCommands.JOG : Command(ACLCommands.JOG, int, -360, 360),
     ACLCommands.MOTOR: Command(ACLCommands.MOTOR, 0, 1, int),
     ACLCommands.STOP : Command(ACLCommands.STOP)
 }

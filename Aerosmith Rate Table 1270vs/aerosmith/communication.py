@@ -15,7 +15,6 @@ class Communication:
     def send(self, command, value):
 
         data = str(command) + str(value)
-
         
         b = self.s.write(data.encode())
 
@@ -34,7 +33,7 @@ class Communication:
     # Requests and returns a response in bytes
     def request(self, command):
         
-        b = self.s.write(command + query_prefix)
+        self.s.write(command + query_prefix)
         
         try:
             response = self.s.read_until(expected=response_terminator)
