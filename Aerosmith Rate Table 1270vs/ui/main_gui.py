@@ -6,10 +6,10 @@ from aerosmith.communication import Communication
 from aerosmith.commands import RateTableCommandFactory, ACLCommands, Command, InvalidArugment, SendFailed
 
 import serial
+import serial.tools.list_ports
 
-root = Tk()
-root.title("Aerosmith Rate Table 1270vs Control Panel")
-root.geometry("500x90")
+[comport.device for comport in serial.tools.list_ports.comports()]
+
 
 response_terminator = '/r/n/>/r/n'.encode()
 
@@ -25,9 +25,26 @@ class BoardControl:
                 stopbits=serial.STOPBITS_ONE,
                 bytesize=serial.EIGHTBITS
             )
+        self.com_port = COM
         self.fake = fake
         self.rate_table = RateTableCommandFactory(self.ser)
         self.current_rate = 0
+        
+    def setSerialPort(self, COM:str) -> (bool, str):
+        if not self.fake:
+            try:
+                self.ser.close()
+                self.ser = serial.Serial(
+                    port=COM,
+                    baudrate=9600,
+                    parity=serial.PARITY_NONE,
+                    stopbits=serial.STOPBITS_ONE,
+                    bytesize=serial.EIGHTBITS
+                )
+            except Exception as e:
+                return (False, f"Serial port not set. {e}")
+        self.com_port = COM
+        return (True, "Serial port set to " + COM)
         
     def setRate(self, rate:int) -> (bool, str):
         jog_acl = self.rate_table.command(ACLCommands.JOG)
@@ -49,61 +66,144 @@ except serial.SerialException as e:
     print(e)
 
 
-def setRate(newRate:int):
+def setBoardRate(newRate:int):
     successful, message = boardControl.setRate(newRate)
     if successful:
         current_rate.set(newRate)
     message_to_user.set(message)
+    
+def setBoardSerialPort(newPort:str):
+    successful, message = boardControl.setSerialPort(newPort)
+    if successful:
+        com_port.set(newPort)
+    message_to_user.set(message)
 
+# tkinter setup
+
+root = Tk()
+root.title("Aerosmith Rate Table 1270vs Control Panel")
+root.geometry("600x130")
 
 mainframe = ttk.Frame(root, padding="5 5 5 5")
-mainframe.grid(column=0, row=0, columnspan=1, sticky=(N, S, E, W))
+mainframe.grid(column=0, row=0, rowspan=3, columnspan=1, sticky=(N, S, E, W))
 
 root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
 
 mainframe.columnconfigure(0, weight=1)
-mainframe.rowconfigure(0, weight=1)
+mainframe.rowconfigure(0, weight=2)
+mainframe.rowconfigure(1, weight=2)
+mainframe.rowconfigure(2, weight=0)
 
+# top row, use to select between modes
 top_row = ttk.Frame(mainframe)
-top_row.grid(column=0, row=0, columnspan=1, sticky=(N, E, W))
+top_row.grid(column=0, row=0, columnspan=1, sticky='new')
 
-com_select_button = ttk.Button(top_row, text="COM Port")
+com_select_button = ttk.Button(top_row, text="COM Port", command=lambda: switchToComSelectWindow())
 com_select_button.grid(column=0, row=0)
 
-manual_test_button = ttk.Button(top_row, text="Manual Test")
+manual_test_button = ttk.Button(top_row, text="Manual Test", command=lambda: switchToManualInputWindow())
 manual_test_button.grid(column=1, row=0)
 
 
-
+# bottom row, displays messages to user and has an exit button
 bottom_row = ttk.Frame(mainframe)
-bottom_row.grid(column=0, row=2, columnspan=2, sticky=(S, W, E))
+bottom_row.grid(column=0, row=2, columnspan=1, sticky='sew')
+bottom_row.columnconfigure(0, weight=1)
+bottom_row.columnconfigure(1, weight=1)
 
 message_to_user = StringVar(value="Ready")
 
 message_to_user_label = ttk.Label(bottom_row, textvariable=message_to_user)
-message_to_user_label.grid(column=0, row=0, sticky=(W))
+message_to_user_label.grid(column=0, row=0, sticky='w')
 
 exit_button = ttk.Button(bottom_row, text="Exit", command=root.destroy)
-exit_button.grid(column=1, row=0, sticky=(E))
+exit_button.grid(column=1, row=0, sticky='e')
+
+# now create middle windows, these will be the main functions of the application
+
+# change com port window
+
+middle_row_com_select = ttk.Frame(mainframe)
+middle_row_com_select.grid(column=0, row=1, sticky='ew')
+middle_row_com_select.columnconfigure(0, weight=2)
+middle_row_com_select.columnconfigure(1, weight=0)
+
+com_port = StringVar(value=boardControl.com_port)
+
+com_port_label = ttk.Label(middle_row_com_select, text="Current COM Port:", padding="200 0 0 0")
+com_port_label.grid(column=0, row=0, sticky='w')
+
+com_port_value = ttk.Label(middle_row_com_select, textvariable=com_port)
+com_port_value.grid(column=1, row=0, sticky='e')
+
+no_com_ports_label = None
+com_port_buttons = None
+
+def createComOptionButtons(no_com_ports_label, com_port_buttons):
+    com_port_buttons = ttk.Frame(middle_row_com_select)
+    com_port_buttons.grid(column=0, row=0, sticky=(W))
+    
+    com_port_buttons_label = ttk.Label(com_port_buttons, text="Select from available ports:")
+    com_port_buttons_label.grid(column=0, row=0, sticky=(W))
+    
+    comports = serial.tools.list_ports.comports()
+    
+    if len(comports) == 0:
+        if com_port_buttons is not None:
+            com_port_buttons.grid_forget()
+        no_com_ports_label = ttk.Label(com_port_buttons, text="No COM Ports Found")
+        no_com_ports_label.grid(column=0, row=0, sticky=(W))
+    else:
+        if no_com_ports_label is not None:
+            no_com_ports_label.grid_forget()
+        for comport in serial.tools.list_ports.comports():
+            comport_button = ttk.Button(com_port_buttons, text=comport.device, command=lambda: setBoardSerialPort(comport.device))
+            comport_button.grid(column=0, row=serial.tools.list_ports.comports().index(comport) + 1, sticky=(W))
+    
+    return com_port_buttons
 
 
+# manual rate change window
 
-middle_row = ttk.Frame(mainframe)
-middle_row.grid(column=0, row=1, rowspan=1, sticky=(N, S,))
+middle_row_manual_edit = ttk.Frame(mainframe)
+middle_row_manual_edit.grid(column=0, row=1, columnspan=1, sticky='ns')
 
 current_rate = StringVar(value="0")
 
-current_rate_label = ttk.Label(middle_row, text="Current Rate:", padding="40 0 0 0")
+current_rate_label = ttk.Label(middle_row_manual_edit, text="Current Rate:", padding="40 0 0 0")
 current_rate_label.grid(column=1, row=0, sticky=(W))
 
-current_rate_value = ttk.Label(middle_row, textvariable=current_rate, padding="0 0 40 0")
+current_rate_value = ttk.Label(middle_row_manual_edit, textvariable=current_rate, padding="0 0 40 0")
 current_rate_value.grid(column=2, row=0, sticky=(W))
 
-change_rate_back_button = ttk.Button(middle_row, text="<", command=lambda: setRate(boardControl.current_rate - 10))
+change_rate_back_button = ttk.Button(middle_row_manual_edit, text="<", command=lambda: setBoardRate(boardControl.current_rate - 10))
 change_rate_back_button.grid(column=0, row=0, sticky=(W))
 
-change_rate_forward_button = ttk.Button(middle_row, text=">", command=lambda: setRate(boardControl.current_rate + 10))
+change_rate_forward_button = ttk.Button(middle_row_manual_edit, text=">", command=lambda: setBoardRate(boardControl.current_rate + 10))
 change_rate_forward_button.grid(column=3, row=0, sticky=(W))
+
+middle_windows = {
+    "com_select" : middle_row_com_select,
+    "manual_edit" : middle_row_manual_edit
+}
+
+def hideMiddleWindowsBut(window:str):
+    for key in middle_windows:
+        if key != window:
+            middle_windows[key].grid_forget()
+
+def switchToComSelectWindow():
+    hideMiddleWindowsBut("com_select")
+    middle_row_com_select.grid(column=0, row=1, columnspan=1, sticky='ns')
+    createComOptionButtons(no_com_ports_label, com_port_buttons)
+    
+    
+def switchToManualInputWindow():
+    hideMiddleWindowsBut("manual_edit")
+    middle_row_manual_edit.grid(column=0, row=1, columnspan=1, sticky='ns')
+
+switchToComSelectWindow()
+
 
 root.mainloop()
