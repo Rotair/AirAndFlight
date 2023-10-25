@@ -96,7 +96,7 @@ mainframe.rowconfigure(2, weight=0)
 top_row = ttk.Frame(mainframe)
 top_row.grid(column=0, row=0, columnspan=1, sticky='new')
 
-com_select_button = Button(top_row, text="COM Port", command=lambda: selectWindow('com_select'))
+com_select_button = Button(top_row, text="Serial Port Select", command=lambda: selectWindow('com_select'))
 com_select_button.grid(column=0, row=0)
 
 manual_test_button = Button(top_row, text="Manual Test", command=lambda: selectWindow('manual_edit'))
@@ -128,7 +128,7 @@ middle_row_com_select.columnconfigure(1, weight=0)
 
 com_port = StringVar(value=boardControl.com_port)
 
-com_port_label = ttk.Label(middle_row_com_select, text="Current COM Port:", padding="280 0 0 0")
+com_port_label = ttk.Label(middle_row_com_select, text="Current Port:", padding="280 0 0 0")
 com_port_label.grid(column=0, row=0, sticky='w')
 
 com_port_value = ttk.Label(middle_row_com_select, textvariable=com_port)
@@ -141,7 +141,7 @@ def createComOptionButtons(no_com_ports_label, com_port_buttons):
     com_port_buttons = ttk.Frame(middle_row_com_select)
     com_port_buttons.grid(column=0, row=0, sticky=(W))
     
-    com_port_buttons_label = ttk.Label(com_port_buttons, text="Select from available ports:")
+    com_port_buttons_label = ttk.Label(com_port_buttons, text="Select from available serial devices:")
     com_port_buttons_label.grid(column=0, row=0, sticky=(W))
     
     comports = serial.tools.list_ports.comports()
@@ -155,7 +155,7 @@ def createComOptionButtons(no_com_ports_label, com_port_buttons):
         if no_com_ports_label is not None:
             no_com_ports_label.grid_forget()
         for comport in serial.tools.list_ports.comports():
-            comport_button = ttk.Button(com_port_buttons, text=f'{comport.device} - {comport.description}', command=lambda: setBoardSerialPort(comport.device))
+            comport_button = ttk.Button(com_port_buttons, text=comport.description, command=lambda: setBoardSerialPort(comport.device))
             comport_button.grid(column=0, row=serial.tools.list_ports.comports().index(comport) + 1, sticky=(W))
     
     return com_port_buttons
