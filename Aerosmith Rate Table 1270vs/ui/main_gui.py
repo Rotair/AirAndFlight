@@ -80,6 +80,10 @@ def setBoardSerialPort(newPort:str):
 
 # tkinter setup
 
+# styles = Style()
+# styles.configure("highlighted_button", background="white")
+# styles.configure("regular_button", background="SystemButtonFace")
+
 root = Tk()
 root.title("Aerosmith Rate Table 1270vs Control Panel")
 root.geometry("600x130")
@@ -99,10 +103,10 @@ mainframe.rowconfigure(2, weight=0)
 top_row = ttk.Frame(mainframe)
 top_row.grid(column=0, row=0, columnspan=1, sticky='new')
 
-com_select_button = ttk.Button(top_row, text="COM Port", command=lambda: switchToComSelectWindow())
+com_select_button = Button(top_row, text="COM Port", command=lambda: selectWindow('com_select'))
 com_select_button.grid(column=0, row=0)
 
-manual_test_button = ttk.Button(top_row, text="Manual Test", command=lambda: switchToManualInputWindow())
+manual_test_button = Button(top_row, text="Manual Test", command=lambda: selectWindow('manual_edit'))
 manual_test_button.grid(column=1, row=0)
 
 
@@ -124,7 +128,7 @@ exit_button.grid(column=1, row=0, sticky='e')
 
 # change com port window
 
-middle_row_com_select = ttk.Frame(mainframe)
+middle_row_com_select = Frame(mainframe)
 middle_row_com_select.grid(column=0, row=1, sticky='ew')
 middle_row_com_select.columnconfigure(0, weight=2)
 middle_row_com_select.columnconfigure(1, weight=0)
@@ -166,7 +170,7 @@ def createComOptionButtons(no_com_ports_label, com_port_buttons):
 
 # manual rate change window
 
-middle_row_manual_edit = ttk.Frame(mainframe)
+middle_row_manual_edit = Frame(mainframe)
 middle_row_manual_edit.grid(column=0, row=1, columnspan=1, sticky='ns')
 
 current_rate = StringVar(value="0")
@@ -184,26 +188,30 @@ change_rate_forward_button = ttk.Button(middle_row_manual_edit, text=">", comman
 change_rate_forward_button.grid(column=3, row=0, sticky=(W))
 
 middle_windows = {
-    "com_select" : middle_row_com_select,
-    "manual_edit" : middle_row_manual_edit
+    "com_select" : {
+        "window" : middle_row_com_select,
+        'button' : com_select_button,
+        'startup_func' : lambda: createComOptionButtons(no_com_ports_label, com_port_buttons)
+    },
+    "manual_edit" : {
+        "window" : middle_row_manual_edit,
+        'button' : manual_test_button,
+        'startup_func' : None
+    }
 }
 
-def hideMiddleWindowsBut(window:str):
+def selectWindow(window:str):
     for key in middle_windows:
         if key != window:
-            middle_windows[key].grid_forget()
+            middle_windows[key]['button'].configure(bg="SystemButtonFace")
+            middle_windows[key]['window'].grid_forget()
+        else:
+            middle_windows[key]['button'].configure(bg="white")
+            middle_windows[key]['window'].grid(column=0, row=1, columnspan=1, sticky='ns')
+            if middle_windows[key]['startup_func'] is not None:
+                middle_windows[key]['startup_func']()
 
-def switchToComSelectWindow():
-    hideMiddleWindowsBut("com_select")
-    middle_row_com_select.grid(column=0, row=1, columnspan=1, sticky='ns')
-    createComOptionButtons(no_com_ports_label, com_port_buttons)
-    
-    
-def switchToManualInputWindow():
-    hideMiddleWindowsBut("manual_edit")
-    middle_row_manual_edit.grid(column=0, row=1, columnspan=1, sticky='ns')
-
-switchToComSelectWindow()
+selectWindow('com_select')
 
 
 root.mainloop()
