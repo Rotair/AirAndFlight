@@ -8,9 +8,6 @@ from aerosmith.commands import RateTableCommandFactory, ACLCommands, Command, In
 import serial
 import serial.tools.list_ports
 
-[comport.device for comport in serial.tools.list_ports.comports()]
-
-
 response_terminator = '/r/n/>/r/n'.encode()
 
 class BoardControl:
