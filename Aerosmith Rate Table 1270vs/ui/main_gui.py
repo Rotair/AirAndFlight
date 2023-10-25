@@ -80,10 +80,6 @@ def setBoardSerialPort(newPort:str):
 
 # tkinter setup
 
-# styles = Style()
-# styles.configure("highlighted_button", background="white")
-# styles.configure("regular_button", background="SystemButtonFace")
-
 root = Tk()
 root.title("Aerosmith Rate Table 1270vs Control Panel")
 root.geometry("600x130")
@@ -135,7 +131,7 @@ middle_row_com_select.columnconfigure(1, weight=0)
 
 com_port = StringVar(value=boardControl.com_port)
 
-com_port_label = ttk.Label(middle_row_com_select, text="Current COM Port:", padding="200 0 0 0")
+com_port_label = ttk.Label(middle_row_com_select, text="Current COM Port:", padding="280 0 0 0")
 com_port_label.grid(column=0, row=0, sticky='w')
 
 com_port_value = ttk.Label(middle_row_com_select, textvariable=com_port)
@@ -162,7 +158,7 @@ def createComOptionButtons(no_com_ports_label, com_port_buttons):
         if no_com_ports_label is not None:
             no_com_ports_label.grid_forget()
         for comport in serial.tools.list_ports.comports():
-            comport_button = ttk.Button(com_port_buttons, text=comport.device, command=lambda: setBoardSerialPort(comport.device))
+            comport_button = ttk.Button(com_port_buttons, text=f'{comport.device} - {comport.description}', command=lambda: setBoardSerialPort(comport.device))
             comport_button.grid(column=0, row=serial.tools.list_ports.comports().index(comport) + 1, sticky=(W))
     
     return com_port_buttons
