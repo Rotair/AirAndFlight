@@ -22,8 +22,7 @@ class Communication:
             try:
                 response = self.s.read_until(expected=response_terminator)
             except serial.SerialTimeoutException:
-                print("Timeout Occured")
-                exit(1)
+                return False
             
             if response == response_terminator:
                 return True

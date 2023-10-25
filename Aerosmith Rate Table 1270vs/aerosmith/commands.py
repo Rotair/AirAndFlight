@@ -16,6 +16,9 @@ from aerosmith.communication import Communication
 class InvalidArugment(Exception):
     pass
 
+class SendFailed(Exception):
+    pass
+
 class Command:
     upper : None | float | int
     lower : None | float | int
@@ -58,7 +61,8 @@ class Command:
         if not self.validate(value):
             raise InvalidArugment("Command not within device limits")
 
-        return self.communication.send(self.command_id, value)
+        if not self.communication.send(self.command_id, value):
+            raise SendFailed('Command failed to send')
     
     def send(self, data):
         return self.communication.send(self.command_id, data)
