@@ -97,7 +97,6 @@ class BoardControl:
             jog_acl = self.rate_table.command(ACLCommands.JOG)
             
             try:
-                setMessageToUser('Command sent, waiting for response...')
                 jog_acl.data = self.rates[rate_key]
             except Exception as e:
                 return (False, f"Error: {e}")
@@ -119,10 +118,9 @@ class BoardControl:
         
     def sendStop(self) -> (bool, str):
         if not self.fake:
-            stop = self.rate_table.command(ACLCommands.STOP)
             try:
                 setMessageToUser('Command sent, waiting for response...')
-                stop.data = 0
+                self.rate_table.command(ACLCommands.STOP).send('')
             except Exception as e:
                 return (False, f"Error: {e}")
         self.current_rate_key = self.zero_rate_key
