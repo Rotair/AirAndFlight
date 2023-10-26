@@ -8,6 +8,8 @@ from aerosmith.commands import RateTableCommandFactory, ACLCommands, Command, In
 import serial
 from serial.tools import list_ports
 from enum import Enum
+import threading
+import time
 
 response_terminator = '/r/n/>/r/n'.encode()
 
@@ -21,6 +23,7 @@ class BoardControl:
     current_rate_key = 0
     bottom_rate_key = 0
     top_rate_key = 12
+    connection_checker_thread: threading.Thread = None
     rates = {
         0: -60,
         1: -50,
@@ -63,7 +66,27 @@ class BoardControl:
         self.current_rate_key = 0
         if self.fake:
             return (True, f"Fake serial port set to {COM}, real board control will not work")
+        else:
+            self.connection_checker_thread = threading.Thread(target=self.connectionChecker)
+            self.connection_checker_thread.start()
         return (True, f"Serial port set to {COM}")
+    
+    def connectionChecker(self):
+        while self.enabled:
+            comports = list_ports.comports()
+            serial_port_exists = False
+            for comport in comports:
+                if comport.device == self.com_port:
+                    serial_port_exists = True
+                    break
+            if serial_port_exists:
+                time.sleep(0.5)
+            else:
+                self.enabled = False
+                self.connection_checker_thread = None
+                self.ser.close()
+                setMessageToUser('Connection to board lost, please reconnect.')
+                return
     
     def getCurrentRate(self) -> (int):
         return self.rates[self.current_rate_key]
@@ -215,6 +238,7 @@ if __name__ == '__main__':
     change_rate_forward_button = ttk.Button(middle_row_manual_edit, text="+10", command=lambda: nextBoardRate())
     change_rate_forward_button.grid(column=3, row=0, sticky=(W))
 
+
     class Mode(Enum):
         COM_SELECT = 'com_select'
         MANUAL_EDIT = 'manual_edit'
@@ -253,6 +277,9 @@ if __name__ == '__main__':
     
     def getBoardControlObject():
         return boardControl
+    
+    def setMessageToUser(msg: str):
+        message_to_user.set(msg)
 
     def nextBoardRate():
         successful, message = boardControl.nextRate()
