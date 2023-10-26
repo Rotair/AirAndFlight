@@ -22,12 +22,12 @@ class TestSetJog(unittest.TestCase):
             jog_acl = self.rate_table.command(ACLCommands.JOG)
 
             # Removes the need to wait for the response terminator
-            with mock.patch.object(self.s, 'read_until', return_value=0):
+            with mock.patch.object(self.s, 'read_until', return_value=response_terminator):
                 jog_acl.data = 60
 
-            response = self.s.read(5)
+            response = self.s.read(7)
           
-            expected_response = b'JOG60'
+            expected_response = b'JOG60\r\n'
     
             self.assertEqual(expected_response, response)
 

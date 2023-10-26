@@ -13,8 +13,7 @@ class Communication:
         self.s = serial
 
     def send(self, command, value):
-
-        data = str(command) + str(value)
+        data =  str(command) + str(value) + '\r\n'
         
         b = self.s.write(data.encode())
 
