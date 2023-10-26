@@ -13,16 +13,18 @@ import time
 
 response_terminator = '/r/n/>/r/n'.encode()
 
-inital_serial_port = 'COM3'
+inital_serial_port = None
 
 faked_control = False
 
 class BoardControl:
-    enabled = False
-    timeout = 10
+    enabled = True
+    _check_connection = False
+    _timeout = 5
     current_rate_key = 6
     bottom_rate_key = 0
     top_rate_key = 12
+    zero_rate_key = 6
     connection_checker_thread: threading.Thread = None
     rates = {
         0: -60,
@@ -42,7 +44,8 @@ class BoardControl:
     
     def __init__(self, fake=False):
         self.fake=fake
-        pass
+        self.enabled = True
+        self.connection_checker_thread = threading.Thread(target=self.connectionChecker)
         
     def setupSerialConnection(self, COM:str, fake:bool=None) -> (bool, str):
         if fake is not None:
@@ -55,24 +58,22 @@ class BoardControl:
                     parity=serial.PARITY_NONE,
                     stopbits=serial.STOPBITS_ONE,
                     bytesize=serial.EIGHTBITS,
-                    timeout=self.timeout
+                    timeout=self._timeout
                 )
                 self.rate_table = RateTableCommandFactory(self.ser)
+                self._check_connection = True
+                self.connection_checker_thread.start()
             except serial.SerialException as e:
-                self.enabled = False
-                return (False, f"Error setting serial port, board control not available.")
-        self.enabled = True
+                self.com_port = 'None'
+                return (False, f"Error: couldn't open {COM}, board control not available.")
+        else:
+            return (True, f"Fake serial port set to {COM}, real board control will not work.")
         self.com_port = COM
         self.current_rate_key = 6
-        if self.fake:
-            return (True, f"Fake serial port set to {COM}, real board control will not work")
-        else:
-            self.connection_checker_thread = threading.Thread(target=self.connectionChecker)
-            self.connection_checker_thread.start()
-        return (True, f"Serial port set to {COM}")
+        return (True, f"Serial port set to {COM}.")
     
     def connectionChecker(self):
-        while self.enabled:
+        while self._check_connection and self.enabled:
             comports = list_ports.comports()
             serial_port_exists = False
             for comport in comports:
@@ -82,9 +83,10 @@ class BoardControl:
             if serial_port_exists:
                 time.sleep(0.5)
             else:
-                self.enabled = False
+                self._check_connection = False
                 self.ser.close()
                 setMessageToUser('Connection to board lost, please reconnect.')
+                selectWindow(Mode.COM_SELECT)
                 return
     
     def getCurrentRate(self) -> (int):
@@ -95,6 +97,7 @@ class BoardControl:
             jog_acl = self.rate_table.command(ACLCommands.JOG)
             
             try:
+                setMessageToUser('Command sent, waiting for response...')
                 jog_acl.data = self.rates[rate_key]
             except Exception as e:
                 return (False, f"Error: {e}")
@@ -104,15 +107,26 @@ class BoardControl:
     
     def nextRate(self) -> (bool, str):
         if self.current_rate_key == self.top_rate_key:
-            return self.setRate(self.bottom_rate_key)
+            return (False, "Rate cannot go any higher.")
         else:
             return self.setRate(self.current_rate_key + 1)
             
     def prevRate(self) -> (bool, str):
         if self.current_rate_key == self.bottom_rate_key:
-            return self.setRate(self.top_rate_key)
+            return (False, "Rate cannot go any lower.")
         else:
             return self.setRate(self.current_rate_key - 1)
+        
+    def sendStop(self) -> (bool, str):
+        if not self.fake:
+            stop = self.rate_table.command(ACLCommands.STOP)
+            try:
+                setMessageToUser('Command sent, waiting for response...')
+                stop.data = 0
+            except Exception as e:
+                return (False, f"Error: {e}")
+        self.current_rate_key = self.zero_rate_key
+        return (True, "Board stopped.")
 
 if __name__ == '__main__':
 
@@ -169,7 +183,7 @@ if __name__ == '__main__':
     message_to_user_label.grid(column=0, row=0, sticky='w')
     message_to_user_label.grid_propagate(True)
 
-    exit_button = ttk.Button(bottom_row, text="Exit", command=exit)
+    exit_button = ttk.Button(bottom_row, text="Exit", command=lambda: exit_program())
     exit_button.grid(column=1, row=0, sticky='e')
 
     # now create middle windows, these will be the main functions of the application
@@ -220,22 +234,31 @@ if __name__ == '__main__':
     # manual rate change window
 
     middle_row_manual_edit = ttk.Frame(mainframe)
-    middle_row_manual_edit.grid(column=0, row=1, sticky='nsew')
+    middle_row_manual_edit.grid(column=0, row=1, sticky='ew')
     middle_row_manual_edit.grid_propagate(True)
+    middle_row_manual_edit.columnconfigure(0, weight=1)
+    middle_row_manual_edit.columnconfigure(1, weight=1)
+    middle_row_manual_edit.columnconfigure(2, weight=1)
+    middle_row_manual_edit.columnconfigure(3, weight=1)
+    middle_row_manual_edit.columnconfigure(4, weight=2)
+    
 
     current_rate = StringVar(value="0")
 
-    current_rate_label = ttk.Label(middle_row_manual_edit, text="Current Rate:", padding="40 0 0 0")
-    current_rate_label.grid(column=1, row=0, sticky=(W))
+    current_rate_label = ttk.Label(middle_row_manual_edit, text="Current Rate:")
+    current_rate_label.grid(column=0, row=0, sticky=(W))
 
     current_rate_value = ttk.Label(middle_row_manual_edit, textvariable=current_rate, padding="0 0 40 0")
-    current_rate_value.grid(column=2, row=0, sticky=(W))
+    current_rate_value.grid(column=1, row=0, sticky=(W))
 
     change_rate_back_button = ttk.Button(middle_row_manual_edit, text="-10", command=lambda: prevBoardRate())
-    change_rate_back_button.grid(column=0, row=0, sticky=(W))
+    change_rate_back_button.grid(column=2, row=0, sticky=(W))
 
     change_rate_forward_button = ttk.Button(middle_row_manual_edit, text="+10", command=lambda: nextBoardRate())
     change_rate_forward_button.grid(column=3, row=0, sticky=(W))
+    
+    change_rate_stop_button = ttk.Button(middle_row_manual_edit, text="Stop", command=lambda: stopBoard())
+    change_rate_stop_button.grid(column=4, row=0, sticky=(W))
 
 
     class Mode(Enum):
@@ -274,16 +297,23 @@ if __name__ == '__main__':
         
     # create functions to set board values and integrate with tkinter window
     
-    def exit():
-        root.destroy()
+    def exit_program():
         boardControl.enabled = False
-        boardControl.connection_checker_thread.join()
+        if(boardControl.connection_checker_thread is not None and boardControl.connection_checker_thread.is_alive()):
+            boardControl.connection_checker_thread.join()
+        root.destroy()
 
     def getBoardControlObject():
         return boardControl
     
     def setMessageToUser(msg: str):
         message_to_user.set(msg)
+        
+    def stopBoard():
+        successful, message = boardControl.sendStop()
+        if successful:
+            current_rate.set(boardControl.getCurrentRate())
+        message_to_user.set(message)
 
     def nextBoardRate():
         successful, message = boardControl.nextRate()
@@ -297,7 +327,7 @@ if __name__ == '__main__':
             current_rate.set(boardControl.getCurrentRate())
         message_to_user.set(message)
         
-    def setupBoardControl(newPort:str):
+    def setupBoardControl(newPort:str=None):
         successful, message = boardControl.setupSerialConnection(newPort)
         if successful:
             manual_test_button['state'] = 'normal'
@@ -307,7 +337,9 @@ if __name__ == '__main__':
             connected_com_port.set('None')
         message_to_user.set(message)
         
-    setupBoardControl(inital_serial_port)
+    manual_test_button['state'] = 'disabled'
+    if(inital_serial_port):
+        setupBoardControl(inital_serial_port)
 
-
+    root.protocol("WM_DELETE_WINDOW", exit_program)
     root.mainloop()
