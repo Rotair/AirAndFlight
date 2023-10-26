@@ -19,8 +19,8 @@ faked_control = False
 
 class BoardControl:
     enabled = False
-    timeout = 0.5
-    current_rate_key = 0
+    timeout = 10
+    current_rate_key = 6
     bottom_rate_key = 0
     top_rate_key = 12
     connection_checker_thread: threading.Thread = None
@@ -63,7 +63,7 @@ class BoardControl:
                 return (False, f"Error setting serial port, board control not available.")
         self.enabled = True
         self.com_port = COM
-        self.current_rate_key = 0
+        self.current_rate_key = 6
         if self.fake:
             return (True, f"Fake serial port set to {COM}, real board control will not work")
         else:
@@ -83,7 +83,6 @@ class BoardControl:
                 time.sleep(0.5)
             else:
                 self.enabled = False
-                self.connection_checker_thread = None
                 self.ser.close()
                 setMessageToUser('Connection to board lost, please reconnect.')
                 return
@@ -170,7 +169,7 @@ if __name__ == '__main__':
     message_to_user_label.grid(column=0, row=0, sticky='w')
     message_to_user_label.grid_propagate(True)
 
-    exit_button = ttk.Button(bottom_row, text="Exit", command=root.destroy)
+    exit_button = ttk.Button(bottom_row, text="Exit", command=exit)
     exit_button.grid(column=1, row=0, sticky='e')
 
     # now create middle windows, these will be the main functions of the application
@@ -275,6 +274,11 @@ if __name__ == '__main__':
         
     # create functions to set board values and integrate with tkinter window
     
+    def exit():
+        root.destroy()
+        boardControl.enabled = False
+        boardControl.connection_checker_thread.join()
+
     def getBoardControlObject():
         return boardControl
     

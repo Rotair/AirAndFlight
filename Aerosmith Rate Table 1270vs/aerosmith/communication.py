@@ -1,6 +1,6 @@
 
 
-response_terminator = b'/r/n/>/r/n'
+response_terminator = b'\r\n>\r\n'
 
 query_prefix = b'?'
 
@@ -13,8 +13,7 @@ class Communication:
         self.s = serial
 
     def send(self, command, value):
-        data =  str(command) + str(value) + '\r\n'
-        
+        data =  str(command) + str(value) + '\r'
         b = self.s.write(data.encode())
 
         if b > 0 :
@@ -22,7 +21,6 @@ class Communication:
                 response = self.s.read_until(expected=response_terminator)
             except serial.SerialTimeoutException:
                 return False
-            
             if response == response_terminator:
                 return True
 
