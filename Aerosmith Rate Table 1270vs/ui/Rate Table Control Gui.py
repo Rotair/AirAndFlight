@@ -20,6 +20,61 @@ class Mode(Enum):
     COM_SELECT = 'com_select'
     MANUAL_EDIT = 'manual_edit'
 
+rate_property_map = {
+    -60: {
+        'measured': '-5.34098786880744 VDC',
+        'parameter': '-5+/-10%'  
+    },
+    -50: {
+        'measured': 'None recorded',
+        'parameter': 'None recorded'  
+    },
+    -40: {
+        'measured': '-5.24928553913476 VDC',
+        'parameter': '-5+/-10%'  
+    },
+    -30: {
+        'measured': '-3.95491080380535 VDC',
+        'parameter': '-3.91681468138267+/-7.73%'  
+    },
+    -20: {
+        'measured': '-2.64686927452832 VDC',
+        'parameter': '-2.61120978758845+/-9.2%'
+    },
+    -10: {
+        'measured': '-1.33453599346377 VDC',
+        'parameter': '-1.30560489379423+/-12.8%'
+    },
+    0: {
+        'measured': '-2.30838048289366E-02 VDC',
+        'parameter': '0+/-0.05'
+    },
+    10: {
+        'measured': '1.29628314797773 VDC',
+        'parameter': '1.30560489379423+/-12.8%'
+    },
+    20: {
+        'measured': '2.59883864790795 VDC',
+        'parameter': '2.61120978758845+/-9.2%'
+    },
+    30: {
+        'measured': '3.91129941125985 VDC',
+        'parameter': '3.91681468138267+/-7.73%'
+    },
+    40: {
+        'measured': '5.21320800019384 VDC',
+        'parameter': '5+/-10%'
+    },
+    50: {
+        'measured': 'None recorded',
+        'parameter': 'None recorded'  
+    },
+    60: {
+        'measured': '5.32789009281625 VDC',
+        'parameter': '5+/-10%'
+    }
+}
+
 
 class BoardControl:
     """
@@ -173,7 +228,7 @@ if __name__ == '__main__':
 
     root = Tk()
     root.title("Aerosmith Rate Table 1270vs Control Panel")
-    root.geometry("700x130")
+    root.geometry("700x180")
     root.grid_propagate(True)
 
     mainframe = ttk.Frame(root, padding="5 5 5 5")
@@ -246,6 +301,7 @@ if __name__ == '__main__':
     comButtonsChecker = ComButtonsChecker(no_com_ports_found_frame, com_ports_found_frame)
         
     def activateComOptionsWindow():
+        createComOptionButtons(no_com_ports_found_frame, com_ports_found_frame)
         comButtonsChecker.resume()
         
     def deactivateComOptionsWindow():
@@ -287,6 +343,7 @@ if __name__ == '__main__':
     middle_row_manual_edit.columnconfigure(2, weight=1)
     middle_row_manual_edit.columnconfigure(3, weight=1)
     middle_row_manual_edit.columnconfigure(4, weight=2)
+    middle_row_manual_edit.columnconfigure(5, weight=4)
     
 
     current_rate = StringVar(value="0")
@@ -297,15 +354,37 @@ if __name__ == '__main__':
     current_rate_value = ttk.Label(middle_row_manual_edit, textvariable=current_rate, padding="0 0 40 0")
     current_rate_value.grid(column=1, row=0, sticky=(W))
 
-    change_rate_back_button = ttk.Button(middle_row_manual_edit, text="-10", command=lambda: prevBoardRate())
+    change_rate_back_button = ttk.Button(middle_row_manual_edit, text="-10", command=lambda: boardCommand(*boardControl.prevRate()))
     change_rate_back_button.grid(column=2, row=0, sticky=(W))
 
-    change_rate_forward_button = ttk.Button(middle_row_manual_edit, text="+10", command=lambda: nextBoardRate())
+    change_rate_forward_button = ttk.Button(middle_row_manual_edit, text="+10", command=lambda: boardCommand(*boardControl.nextRate()))
     change_rate_forward_button.grid(column=3, row=0, sticky=(W))
     
-    change_rate_stop_button = ttk.Button(middle_row_manual_edit, text="Stop", command=lambda: stopBoard())
+    change_rate_stop_button = ttk.Button(middle_row_manual_edit, text="Stop", command=lambda: boardCommand(*boardControl.sendStop()))
     change_rate_stop_button.grid(column=4, row=0, sticky=(W))
-
+    
+    properties_window = ttk.Frame(middle_row_manual_edit, padding="40 0 0 0")
+    properties_window.grid(column=5, row=0,)
+    properties_window.grid_propagate(True)
+    properties_window.columnconfigure(0, weight=2)
+    properties_window.columnconfigure(1, weight=1)
+    
+    measured_var = StringVar(value=rate_property_map[0]['measured'])
+    prop_measured_label = ttk.Label(properties_window, text="Measured:", padding="0 0 40 0")
+    prop_measured_label.grid(column=0, row=0, sticky=(W))
+    prop_measured_value = ttk.Label(properties_window, textvariable=measured_var)
+    prop_measured_value.grid(column=1, row=0, sticky=(E))
+    
+    parameter_var = StringVar(value=rate_property_map[0]['parameter'])
+    prop_parameter_label = ttk.Label(properties_window, text="Parameter:", padding="0 0 40 0")
+    prop_parameter_label.grid(column=0, row=1, sticky=(W))
+    prop_parameter_value = ttk.Label(properties_window, textvariable=parameter_var)
+    prop_parameter_value.grid(column=1, row=1, sticky=(E))
+    
+    prop_positive_path_label = ttk.Label(properties_window, text="Positive Path:", padding="0 0 40 0")
+    prop_positive_path_label.grid(column=0, row=2, sticky=(W))
+    prop_positive_path_value = ttk.Label(properties_window, text="P RATE OUT to DCV+")
+    prop_positive_path_value.grid(column=1, row=2, sticky=(E))
 
     objects_for_mode:dict[Mode, dict[str, any]] = {
         Mode.COM_SELECT : {
@@ -360,22 +439,11 @@ if __name__ == '__main__':
     def setConnectedComPort(com_port: str):
         connected_com_port.set(com_port)
         
-    def stopBoard():
-        successful, message = boardControl.sendStop()
+    def boardCommand(successful, message):
         if successful:
             current_rate.set(boardControl.getCurrentRate())
-        message_to_user.set(message)
-
-    def nextBoardRate():
-        successful, message = boardControl.nextRate()
-        if successful:
-            current_rate.set(boardControl.getCurrentRate())
-        message_to_user.set(message)
-        
-    def prevBoardRate():
-        successful, message = boardControl.prevRate()
-        if successful:
-            current_rate.set(boardControl.getCurrentRate())
+            measured_var.set(rate_property_map[boardControl.getCurrentRate()]['measured'])
+            parameter_var.set(rate_property_map[boardControl.getCurrentRate()]['parameter'])
         message_to_user.set(message)
         
     def setupBoardControl(newPort:str=None):
