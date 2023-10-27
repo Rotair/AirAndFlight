@@ -13,7 +13,7 @@ response_terminator = '/r/n/>/r/n'.encode()
 
 inital_serial_port = None
 
-faked_control = True
+faked_control = False
 
 
 class Mode(Enum):
