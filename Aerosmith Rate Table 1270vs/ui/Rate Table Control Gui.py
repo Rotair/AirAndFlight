@@ -13,7 +13,7 @@ response_terminator = '/r/n/>/r/n'.encode()
 
 inital_serial_port = None
 
-faked_control = False
+faked_control = True
 
 
 class Mode(Enum):
@@ -369,22 +369,25 @@ if __name__ == '__main__':
     properties_window.columnconfigure(0, weight=2)
     properties_window.columnconfigure(1, weight=1)
     
+    props_label = ttk.Label(properties_window, text="Gyro Sensitivity Check Data:", padding="0 0 0 10")
+    props_label.grid(column=0, row=0, columnspan=2, sticky=(W))
+    
     measured_var = StringVar(value=rate_property_map[0]['measured'])
     prop_measured_label = ttk.Label(properties_window, text="Measured:", padding="0 0 40 0")
-    prop_measured_label.grid(column=0, row=0, sticky=(W))
+    prop_measured_label.grid(column=0, row=1, sticky=(W))
     prop_measured_value = ttk.Label(properties_window, textvariable=measured_var)
-    prop_measured_value.grid(column=1, row=0, sticky=(E))
+    prop_measured_value.grid(column=1, row=1, sticky=(E))
     
     parameter_var = StringVar(value=rate_property_map[0]['parameter'])
     prop_parameter_label = ttk.Label(properties_window, text="Parameter:", padding="0 0 40 0")
-    prop_parameter_label.grid(column=0, row=1, sticky=(W))
+    prop_parameter_label.grid(column=0, row=2, sticky=(W))
     prop_parameter_value = ttk.Label(properties_window, textvariable=parameter_var)
-    prop_parameter_value.grid(column=1, row=1, sticky=(E))
+    prop_parameter_value.grid(column=1, row=2, sticky=(E))
     
     prop_positive_path_label = ttk.Label(properties_window, text="Positive Path:", padding="0 0 40 0")
-    prop_positive_path_label.grid(column=0, row=2, sticky=(W))
+    prop_positive_path_label.grid(column=0, row=3, sticky=(W))
     prop_positive_path_value = ttk.Label(properties_window, text="P RATE OUT to DCV+")
-    prop_positive_path_value.grid(column=1, row=2, sticky=(E))
+    prop_positive_path_value.grid(column=1, row=3, sticky=(E))
 
     objects_for_mode:dict[Mode, dict[str, any]] = {
         Mode.COM_SELECT : {
@@ -422,6 +425,7 @@ if __name__ == '__main__':
         
     # create functions to set board values and integrate with tkinter window
     def exit_program():
+        root.withdraw()
         boardControl.enabled = False
         if(boardControl.connection_checker_thread is not None and boardControl.connection_checker_thread.is_alive()):
             boardControl.connection_checker_thread.join()
