@@ -1,15 +1,13 @@
-from tkinter import *
-from tkinter import ttk
-import unittest.mock as mock
-
-from aerosmith.communication import Communication
-from aerosmith.commands import RateTableCommandFactory, ACLCommands, Command, InvalidArugment, SendFailed
-
+import threading
+import time
 import serial
 from serial.tools import list_ports
 from enum import Enum
-import threading
-import time
+
+from tkinter import *
+from tkinter import ttk
+
+from aerosmith.commands import RateTableCommandFactory, ACLCommands
 
 response_terminator = '/r/n/>/r/n'.encode()
 
@@ -17,7 +15,16 @@ inital_serial_port = None
 
 faked_control = False
 
+
+class Mode(Enum):
+    COM_SELECT = 'com_select'
+    MANUAL_EDIT = 'manual_edit'
+
+
 class BoardControl:
+    """
+        Class for interfacing between the command library, the serial connection, and returning the correct responses to tkinter window.
+    """
     enabled = True
     _check_connection = False
     _timeout = 5
@@ -46,6 +53,7 @@ class BoardControl:
         self.fake=fake
         self.enabled = True
         self.connection_checker_thread = threading.Thread(target=self.connectionChecker)
+        self.connection_checker_thread.start()
         
     def setupSerialConnection(self, COM:str, fake:bool=None) -> (bool, str):
         if fake is not None:
@@ -62,7 +70,6 @@ class BoardControl:
                 )
                 self.rate_table = RateTableCommandFactory(self.ser)
                 self._check_connection = True
-                self.connection_checker_thread.start()
             except serial.SerialException as e:
                 self.com_port = 'None'
                 return (False, f"Error: couldn't open {COM}, board control not available.")
@@ -73,21 +80,27 @@ class BoardControl:
         return (True, f"Serial port set to {COM}.")
     
     def connectionChecker(self):
-        while self._check_connection and self.enabled:
+        while self.enabled:
+            if not self._check_connection:
+                time.sleep(1)
+                continue
+            
             comports = list_ports.comports()
             serial_port_exists = False
             for comport in comports:
                 if comport.device == self.com_port:
                     serial_port_exists = True
                     break
+                
             if serial_port_exists:
-                time.sleep(0.5)
+                time.sleep(1)
             else:
                 self._check_connection = False
                 self.ser.close()
+                setConnectedComPort('None')
                 setMessageToUser('Connection to board lost, please reconnect.')
                 selectWindow(Mode.COM_SELECT)
-                return
+                objects_for_mode[Mode.MANUAL_EDIT]['button']['state'] = 'disabled'
     
     def getCurrentRate(self) -> (int):
         return self.rates[self.current_rate_key]
@@ -125,9 +138,37 @@ class BoardControl:
                 return (False, f"Error: {e}")
         self.current_rate_key = self.zero_rate_key
         return (True, "Board stopped.")
-
+    
+    
+class ComButtonsChecker(threading.Thread):
+    """
+        A thread that, while the com select window is open, checks for new com ports and rebuilds the list of options. 
+        If a different window is selected, this thread will pause until the com select window is selected again.
+    """
+    done = False
+    check_ports = True
+    def __init__(self, no_com_ports_found_frame:ttk.Frame, com_ports_found_frame:ttk.Frame):
+        super(ComButtonsChecker, self).__init__()
+        self.no_com_ports_found_frame = no_com_ports_found_frame
+        self.com_ports_found_frame = com_ports_found_frame
+        
+    def run(self):
+        while not self.done:
+            if self.check_ports:
+                createComOptionButtons(self.no_com_ports_found_frame, self.com_ports_found_frame)
+            time.sleep(1)
+            
+    def stop(self):
+        self.done = True
+        
+    def pause(self):
+        self.check_ports = False
+        
+    def resume(self):
+        self.check_ports = True
+        
+    
 if __name__ == '__main__':
-
     # tkinter setup
 
     root = Tk()
@@ -184,10 +225,10 @@ if __name__ == '__main__':
     exit_button = ttk.Button(bottom_row, text="Exit", command=lambda: exit_program())
     exit_button.grid(column=1, row=0, sticky='e')
 
+
     # now create middle windows, these will be the main functions of the application
-
+        
     # change com port window
-
     middle_row_com_select = ttk.Frame(mainframe)
     middle_row_com_select.grid(column=0, row=1, sticky='ew')
     middle_row_com_select.grid_propagate(True)
@@ -201,6 +242,14 @@ if __name__ == '__main__':
 
     no_com_ports_found_frame = ttk.Frame(middle_row_com_select, padding="0 0 40 0")
     com_ports_found_frame = ttk.Frame(middle_row_com_select, padding="0 0 40 0")
+    
+    comButtonsChecker = ComButtonsChecker(no_com_ports_found_frame, com_ports_found_frame)
+        
+    def activateComOptionsWindow():
+        comButtonsChecker.resume()
+        
+    def deactivateComOptionsWindow():
+        comButtonsChecker.pause()
 
     def createComOptionButtons(no_com_ports_found_frame:ttk.Frame, com_ports_found_frame:ttk.Frame):
         comports = list_ports.comports()
@@ -227,10 +276,9 @@ if __name__ == '__main__':
             for (index, comport) in enumerate(comports):
                 comport_button = ttk.Button(com_ports_found_frame, text=comport.description, command=lambda: setupBoardControl(comport.device))
                 comport_button.grid(column=0, row=index + 1, sticky=(W))
-
-
+                
+                
     # manual rate change window
-
     middle_row_manual_edit = ttk.Frame(mainframe)
     middle_row_manual_edit.grid(column=0, row=1, sticky='ew')
     middle_row_manual_edit.grid_propagate(True)
@@ -259,20 +307,18 @@ if __name__ == '__main__':
     change_rate_stop_button.grid(column=4, row=0, sticky=(W))
 
 
-    class Mode(Enum):
-        COM_SELECT = 'com_select'
-        MANUAL_EDIT = 'manual_edit'
-
     objects_for_mode:dict[Mode, dict[str, any]] = {
         Mode.COM_SELECT : {
             "window" : middle_row_com_select,
             'button' : com_select_button,
-            'startup_func' : lambda: createComOptionButtons(no_com_ports_found_frame, com_ports_found_frame)
+            'activate_func' : lambda: activateComOptionsWindow(),
+            'deactivate_func' : lambda: deactivateComOptionsWindow()
         },
         Mode.MANUAL_EDIT : {
             "window" : middle_row_manual_edit,
             'button' : manual_test_button,
-            'startup_func' : None
+            'activate_func' : None,
+            'deactivate_func' : None
         }
     }
 
@@ -281,24 +327,28 @@ if __name__ == '__main__':
             if key != window:
                 objects_for_mode[key]['button'].configure(bg="SystemButtonFace")
                 objects_for_mode[key]['window'].grid_forget()
+                if objects_for_mode[key]['deactivate_func'] is not None:
+                    objects_for_mode[key]['deactivate_func']()
             else:
                 objects_for_mode[key]['button'].configure(bg="white")
                 objects_for_mode[key]['window'].grid(column=0, row=1, sticky='ns')
-                if objects_for_mode[key]['startup_func'] is not None:
-                    objects_for_mode[key]['startup_func']()
+                if objects_for_mode[key]['activate_func'] is not None:
+                    objects_for_mode[key]['activate_func']()
 
     selectWindow(Mode.COM_SELECT)
+    comButtonsChecker.start()
     
     # create board control object
-    
     boardControl = BoardControl(fake=faked_control)
         
     # create functions to set board values and integrate with tkinter window
-    
     def exit_program():
         boardControl.enabled = False
         if(boardControl.connection_checker_thread is not None and boardControl.connection_checker_thread.is_alive()):
             boardControl.connection_checker_thread.join()
+        if(comButtonsChecker is not None and comButtonsChecker.is_alive()):
+            comButtonsChecker.stop()
+            comButtonsChecker.join()
         root.destroy()
 
     def getBoardControlObject():
@@ -306,6 +356,9 @@ if __name__ == '__main__':
     
     def setMessageToUser(msg: str):
         message_to_user.set(msg)
+        
+    def setConnectedComPort(com_port: str):
+        connected_com_port.set(com_port)
         
     def stopBoard():
         successful, message = boardControl.sendStop()
