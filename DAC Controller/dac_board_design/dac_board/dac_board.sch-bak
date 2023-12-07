@@ -1,0 +1,174 @@
+EESchema Schematic File Version 4
+EELAYER 30 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L Created~Symbols~for~DACBoard:MAX536BCWE+ U?
+U 1 1 643F4322
+P 1900 1050
+F 0 "U?" H 1875 1125 50  0000 C CNN
+F 1 "MAX536BCWE+" H 1875 1034 50  0000 C CNN
+F 2 "" H 1900 1050 50  0001 C CNN
+F 3 "" H 1900 1050 50  0001 C CNN
+	1    1900 1050
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:OPA890xD U?
+U 1 1 643F52B9
+P 3450 1650
+F 0 "U?" H 3794 1696 50  0000 L CNN
+F 1 "OPA890xD" H 3794 1605 50  0000 L CNN
+F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 3450 1650 50  0001 C CNN
+F 3 "https://www.ti.com/lit/ds/symlink/opa890.pdf" H 3450 1850 50  0001 C CNN
+	1    3450 1650
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+15V #PWR?
+U 1 1 643F6379
+P 1250 3400
+F 0 "#PWR?" H 1250 3250 50  0001 C CNN
+F 1 "+15V" H 1265 3573 50  0000 C CNN
+F 2 "" H 1250 3400 50  0001 C CNN
+F 3 "" H 1250 3400 50  0001 C CNN
+	1    1250 3400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3350 1350 2950 1350
+Wire Wire Line
+	2950 1350 2950 3000
+Wire Wire Line
+	1250 3000 1250 3400
+Wire Wire Line
+	950  3000 950  2100
+Wire Wire Line
+	950  2100 1450 2100
+Wire Wire Line
+	950  2100 950  1200
+Wire Wire Line
+	950  1200 1450 1200
+Connection ~ 950  2100
+$Comp
+L Amplifier_Operational:OPA890xD U?
+U 1 1 643FD922
+P 4950 1650
+F 0 "U?" H 5294 1696 50  0000 L CNN
+F 1 "OPA890xD" H 5294 1605 50  0000 L CNN
+F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 4950 1650 50  0001 C CNN
+F 3 "https://www.ti.com/lit/ds/symlink/opa890.pdf" H 4950 1850 50  0001 C CNN
+	1    4950 1650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4850 1350 4450 1350
+$Comp
+L Amplifier_Operational:OPA890xD U?
+U 1 1 643FDEC4
+P 6400 1650
+F 0 "U?" H 6744 1696 50  0000 L CNN
+F 1 "OPA890xD" H 6744 1605 50  0000 L CNN
+F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 6400 1650 50  0001 C CNN
+F 3 "https://www.ti.com/lit/ds/symlink/opa890.pdf" H 6400 1850 50  0001 C CNN
+	1    6400 1650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6300 1350 5900 1350
+$Comp
+L Amplifier_Operational:OPA890xD U?
+U 1 1 643FE58F
+P 7950 1650
+F 0 "U?" H 8294 1696 50  0000 L CNN
+F 1 "OPA890xD" H 8294 1605 50  0000 L CNN
+F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 7950 1650 50  0001 C CNN
+F 3 "https://www.ti.com/lit/ds/symlink/opa890.pdf" H 7950 1850 50  0001 C CNN
+	1    7950 1650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7850 1350 7450 1350
+$Comp
+L power:-15V #PWR?
+U 1 1 64401C5F
+P 1900 3400
+F 0 "#PWR?" H 1900 3500 50  0001 C CNN
+F 1 "-15V" H 1915 3573 50  0000 C CNN
+F 2 "" H 1900 3400 50  0001 C CNN
+F 3 "" H 1900 3400 50  0001 C CNN
+	1    1900 3400
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+28V #PWR?
+U 1 1 644028C1
+P 1000 3400
+F 0 "#PWR?" H 1000 3250 50  0001 C CNN
+F 1 "+28V" H 1015 3573 50  0000 C CNN
+F 2 "" H 1250 3450 50  0001 C CNN
+F 3 "" H 1250 3450 50  0001 C CNN
+	1    1000 3400
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR?
+U 1 1 64403B33
+P 1500 3400
+F 0 "#PWR?" H 1500 3250 50  0001 C CNN
+F 1 "+5V" H 1515 3573 50  0000 C CNN
+F 2 "" H 1500 3400 50  0001 C CNN
+F 3 "" H 1500 3400 50  0001 C CNN
+	1    1500 3400
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:-5V #PWR?
+U 1 1 64404267
+P 1700 3400
+F 0 "#PWR?" H 1700 3500 50  0001 C CNN
+F 1 "-5V" H 1715 3573 50  0000 C CNN
+F 2 "" H 1700 3400 50  0001 C CNN
+F 3 "" H 1700 3400 50  0001 C CNN
+	1    1700 3400
+	1    0    0    -1  
+$EndComp
+Connection ~ 1250 3000
+Wire Wire Line
+	1250 3000 950  3000
+Wire Wire Line
+	1250 3000 2950 3000
+$Comp
+L pspice:C C?
+U 1 1 64406B98
+P 3350 2450
+F 0 "C?" H 3528 2496 50  0000 L CNN
+F 1 "C" H 3528 2405 50  0000 L CNN
+F 2 "" H 3350 2450 50  0001 C CNN
+F 3 "~" H 3350 2450 50  0001 C CNN
+	1    3350 2450
+	1    0    0    -1  
+$EndComp
+$Comp
+L pspice:C C?
+U 1 1 64407F5E
+P 4850 2450
+F 0 "C?" H 5028 2496 50  0000 L CNN
+F 1 "C" H 5028 2405 50  0000 L CNN
+F 2 "" H 4850 2450 50  0001 C CNN
+F 3 "~" H 4850 2450 50  0001 C CNN
+	1    4850 2450
+	1    0    0    -1  
+$EndComp
+$EndSCHEMATC

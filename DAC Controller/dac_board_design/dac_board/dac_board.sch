@@ -1,0 +1,349 @@
+EESchema Schematic File Version 4
+EELAYER 30 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L Created~Symbols~for~DACBoard:MAX536BCWE+ U?
+U 1 1 643F4322
+P 1900 1050
+F 0 "U?" H 1875 1125 50  0000 C CNN
+F 1 "MAX536BCWE+" H 1875 1034 50  0000 C CNN
+F 2 "" H 1900 1050 50  0001 C CNN
+F 3 "" H 1900 1050 50  0001 C CNN
+	1    1900 1050
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:OPA890xD U?
+U 1 1 643F52B9
+P 3450 1650
+F 0 "U?" H 3794 1696 50  0000 L CNN
+F 1 "OPA890xD" H 3794 1605 50  0000 L CNN
+F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 3450 1650 50  0001 C CNN
+F 3 "https://www.ti.com/lit/ds/symlink/opa890.pdf" H 3450 1850 50  0001 C CNN
+	1    3450 1650
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+15V #PWR?
+U 1 1 643F6379
+P 1250 3400
+F 0 "#PWR?" H 1250 3250 50  0001 C CNN
+F 1 "+15V" H 1265 3573 50  0000 C CNN
+F 2 "" H 1250 3400 50  0001 C CNN
+F 3 "" H 1250 3400 50  0001 C CNN
+	1    1250 3400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3350 1350 2950 1350
+Wire Wire Line
+	2950 1350 2950 3000
+Wire Wire Line
+	1250 3000 1250 3400
+Wire Wire Line
+	950  3000 950  2100
+Wire Wire Line
+	950  2100 1450 2100
+Wire Wire Line
+	950  2100 950  1200
+Wire Wire Line
+	950  1200 1450 1200
+Connection ~ 950  2100
+$Comp
+L Amplifier_Operational:OPA890xD U?
+U 1 1 643FD922
+P 4950 1650
+F 0 "U?" H 5294 1696 50  0000 L CNN
+F 1 "OPA890xD" H 5294 1605 50  0000 L CNN
+F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 4950 1650 50  0001 C CNN
+F 3 "https://www.ti.com/lit/ds/symlink/opa890.pdf" H 4950 1850 50  0001 C CNN
+	1    4950 1650
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:OPA890xD U?
+U 1 1 643FDEC4
+P 6400 1650
+F 0 "U?" H 6744 1696 50  0000 L CNN
+F 1 "OPA890xD" H 6744 1605 50  0000 L CNN
+F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 6400 1650 50  0001 C CNN
+F 3 "https://www.ti.com/lit/ds/symlink/opa890.pdf" H 6400 1850 50  0001 C CNN
+	1    6400 1650
+	1    0    0    -1  
+$EndComp
+$Comp
+L Amplifier_Operational:OPA890xD U?
+U 1 1 643FE58F
+P 7950 1650
+F 0 "U?" H 8294 1696 50  0000 L CNN
+F 1 "OPA890xD" H 8294 1605 50  0000 L CNN
+F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 7950 1650 50  0001 C CNN
+F 3 "https://www.ti.com/lit/ds/symlink/opa890.pdf" H 7950 1850 50  0001 C CNN
+	1    7950 1650
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:-15V #PWR?
+U 1 1 64401C5F
+P 1900 3400
+F 0 "#PWR?" H 1900 3500 50  0001 C CNN
+F 1 "-15V" H 1915 3573 50  0000 C CNN
+F 2 "" H 1900 3400 50  0001 C CNN
+F 3 "" H 1900 3400 50  0001 C CNN
+	1    1900 3400
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+28V #PWR?
+U 1 1 644028C1
+P 1000 3400
+F 0 "#PWR?" H 1000 3250 50  0001 C CNN
+F 1 "+28V" H 1015 3573 50  0000 C CNN
+F 2 "" H 1250 3450 50  0001 C CNN
+F 3 "" H 1250 3450 50  0001 C CNN
+	1    1000 3400
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR?
+U 1 1 64403B33
+P 1500 3400
+F 0 "#PWR?" H 1500 3250 50  0001 C CNN
+F 1 "+5V" H 1515 3573 50  0000 C CNN
+F 2 "" H 1500 3400 50  0001 C CNN
+F 3 "" H 1500 3400 50  0001 C CNN
+	1    1500 3400
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:-5V #PWR?
+U 1 1 64404267
+P 1700 3400
+F 0 "#PWR?" H 1700 3500 50  0001 C CNN
+F 1 "-5V" H 1715 3573 50  0000 C CNN
+F 2 "" H 1700 3400 50  0001 C CNN
+F 3 "" H 1700 3400 50  0001 C CNN
+	1    1700 3400
+	1    0    0    -1  
+$EndComp
+Connection ~ 1250 3000
+Wire Wire Line
+	1250 3000 950  3000
+Wire Wire Line
+	1250 3000 2950 3000
+$Comp
+L Device:C C?
+U 1 1 64408414
+P 3350 2250
+F 0 "C?" H 3465 2296 50  0000 L CNN
+F 1 "C" H 3465 2205 50  0000 L CNN
+F 2 "" H 3388 2100 50  0001 C CNN
+F 3 "~" H 3350 2250 50  0001 C CNN
+	1    3350 2250
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 64409E57
+P 4850 2250
+F 0 "C?" H 4965 2296 50  0000 L CNN
+F 1 "C" H 4965 2205 50  0000 L CNN
+F 2 "" H 4888 2100 50  0001 C CNN
+F 3 "~" H 4850 2250 50  0001 C CNN
+	1    4850 2250
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 64409FCE
+P 6300 2250
+F 0 "C?" H 6415 2296 50  0000 L CNN
+F 1 "C" H 6415 2205 50  0000 L CNN
+F 2 "" H 6338 2100 50  0001 C CNN
+F 3 "~" H 6300 2250 50  0001 C CNN
+	1    6300 2250
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 6440A233
+P 7850 2250
+F 0 "C?" H 7965 2296 50  0000 L CNN
+F 1 "C" H 7965 2205 50  0000 L CNN
+F 2 "" H 7888 2100 50  0001 C CNN
+F 3 "~" H 7850 2250 50  0001 C CNN
+	1    7850 2250
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3350 1350 4050 1350
+Connection ~ 3350 1350
+Wire Wire Line
+	4850 1350 5500 1350
+Connection ~ 4850 1350
+Wire Wire Line
+	6300 1350 7000 1350
+Connection ~ 6300 1350
+Wire Wire Line
+	4050 1350 4050 2400
+Wire Wire Line
+	4050 2400 3350 2400
+Connection ~ 4050 1350
+Wire Wire Line
+	4050 1350 4850 1350
+Wire Wire Line
+	3350 2100 3350 1950
+Wire Wire Line
+	3350 2100 4850 2100
+Connection ~ 3350 2100
+Wire Wire Line
+	4850 1950 4850 2100
+Connection ~ 4850 2100
+Wire Wire Line
+	6300 2100 4850 2100
+Wire Wire Line
+	6300 2100 6300 1950
+Connection ~ 6300 2100
+Wire Wire Line
+	6300 2100 7850 2100
+Wire Wire Line
+	7850 2100 7850 1950
+Connection ~ 7850 2100
+Wire Wire Line
+	4850 2400 5500 2400
+Wire Wire Line
+	5500 2400 5500 1350
+Connection ~ 5500 1350
+Wire Wire Line
+	5500 1350 6300 1350
+Wire Wire Line
+	6300 2400 7000 2400
+Wire Wire Line
+	7000 2400 7000 1350
+Connection ~ 7000 1350
+Wire Wire Line
+	7000 1350 7850 1350
+Wire Wire Line
+	7850 1350 8550 1350
+Wire Wire Line
+	8550 1350 8550 2400
+Wire Wire Line
+	8550 2400 7850 2400
+Connection ~ 7850 1350
+Wire Wire Line
+	3750 1650 4400 1650
+Wire Wire Line
+	4400 1650 4400 650 
+Text GLabel 4400 650  0    50   Input ~ 0
+channel1
+$Comp
+L Device:R_Pack04 RN?
+U 1 1 6440FEF3
+P 5950 2900
+F 0 "RN?" H 6138 2946 50  0000 L CNN
+F 1 "R_Pack04" H 6138 2855 50  0000 L CNN
+F 2 "" V 6225 2900 50  0001 C CNN
+F 3 "~" H 5950 2900 50  0001 C CNN
+	1    5950 2900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1450 1700 650  1700
+Wire Wire Line
+	650  1700 650  3750
+Wire Wire Line
+	650  3750 3650 3750
+Wire Wire Line
+	3650 3350 3550 3350
+Wire Wire Line
+	3650 3400 3450 3400
+Connection ~ 3650 3400
+Wire Wire Line
+	3650 3400 3650 3350
+Wire Wire Line
+	3650 3450 3350 3450
+Connection ~ 3650 3450
+Wire Wire Line
+	3650 3450 3650 3400
+Connection ~ 3650 3350
+Wire Wire Line
+	3350 3450 3350 3300
+Wire Wire Line
+	3450 3400 3450 3300
+Wire Wire Line
+	3650 3350 3650 3300
+Wire Wire Line
+	3550 3350 3550 3300
+$Comp
+L Device:R_Pack04 RN?
+U 1 1 6440E504
+P 3550 3100
+F 0 "RN?" H 3738 3146 50  0000 L CNN
+F 1 "R_Pack04" H 3738 3055 50  0000 L CNN
+F 2 "" V 3825 3100 50  0001 C CNN
+F 3 "~" H 3550 3100 50  0001 C CNN
+	1    3550 3100
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3650 3750 3650 3450
+Wire Wire Line
+	3650 2900 3650 2850
+Wire Wire Line
+	3650 2550 3150 2550
+Wire Wire Line
+	3150 2550 3150 1750
+Wire Wire Line
+	3650 2850 5050 2850
+Wire Wire Line
+	5050 2850 5050 3700
+Wire Wire Line
+	5050 3700 6050 3700
+Wire Wire Line
+	6050 3700 6050 3100
+Connection ~ 3650 2850
+Wire Wire Line
+	3650 2850 3650 2550
+Wire Wire Line
+	6050 2700 6050 2500
+Wire Wire Line
+	6050 2500 4400 2500
+Wire Wire Line
+	4400 2500 4400 1650
+Connection ~ 4400 1650
+Wire Wire Line
+	3550 2900 3550 2800
+Wire Wire Line
+	3550 2800 4650 2800
+Wire Wire Line
+	5100 2800 5100 3650
+Wire Wire Line
+	5100 3650 5950 3650
+Wire Wire Line
+	5950 3650 5950 3100
+Wire Wire Line
+	4650 2800 4650 1750
+Connection ~ 4650 2800
+Wire Wire Line
+	4650 2800 5100 2800
+Wire Wire Line
+	1900 3400 1900 2800
+Wire Wire Line
+	1900 2800 2700 2800
+Wire Wire Line
+	2700 2800 2700 2100
+Wire Wire Line
+	2700 2100 3350 2100
+$EndSCHEMATC
