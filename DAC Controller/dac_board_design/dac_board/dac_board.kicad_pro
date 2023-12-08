@@ -471,6 +471,14 @@
     [
       "1921d6ec-7f4e-47dc-9f64-62cec94be977",
       ""
+    ],
+    [
+      "fd38a251-cf3d-48a3-81dd-c224ee9537c5",
+      "FPGA "
+    ],
+    [
+      "b6f2d2e0-789b-4daf-8858-1960d6767d9c",
+      "Low Voltage DAC"
     ]
   ],
   "text_variables": {}
